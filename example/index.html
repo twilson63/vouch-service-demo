@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Test Vouch Workshop</title>
+  <meta charset="utf-8">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@2.46.1/dist/full.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.twind.style" crossorigin></script>
+</head>
+
+<body>
+  <div class="hero min-h-screen bg-base-200">
+    <div class="hero-content">
+      <div class="max-w-md space-y-8">
+        <h1 class="text-5xl font-bold">Vouch Service</h1>
+        <p>Vouch your wallet if you have STAMP Tokens.</p>
+        <p>This service allows arweave wallets to get vouched if they hold STAMP Tokens, this is not the only way to get
+          vouched, there are many other ways. Most likely, you are using this service if someone gifted you some STAMP
+          Tokens,
+          or you created an Atomic Asset and someone STAMPed it.</p>
+        <button id="vouchBtn" class="btn">Vouch me!</button>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    import Arweave from 'https://esm.sh/arweave'
+    import { ArweaveWebWallet } from 'https://esm.sh/arweave-wallet-connector'
+
+    const url = 'https://8000-twilson63-xyz-ddwj0qjzngv.ws-us81.gitpod.io'
+
+    const arweave = Arweave.init({ host: 'arweave.net', port: 443, protocol: 'https' })
+    const wallet = new ArweaveWebWallet({
+      name: 'vouch service test'
+    })
+    wallet.setUrl('arweave.app')
+
+    document.getElementById('vouchBtn').addEventListener('click', async (e) => {
+      e.target.disabled = true
+      // connect to arweave
+      await wallet.connect()
+      // build and sign transaction
+      const tx = await arweave.createTransaction({ data: JSON.stringify({ data: 'VOUCH_REQUEST' }) })
+      await arweave.transactions.sign(tx)
+      await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(tx)
+      })
+    })
+  </script>
+</body>
+
+</html>
